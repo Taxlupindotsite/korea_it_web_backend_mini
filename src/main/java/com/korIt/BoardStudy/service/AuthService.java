@@ -2,10 +2,12 @@ package com.korIt.BoardStudy.service;
 
 import com.korIt.BoardStudy.dto.ApiRespDto;
 import com.korIt.BoardStudy.dto.auth.SignUpReqDto;
+import com.korIt.BoardStudy.dto.auth.SigninReqDto;
 import com.korIt.BoardStudy.entity.User;
 import com.korIt.BoardStudy.entity.UserRole;
 import com.korIt.BoardStudy.repository.UserRepository;
 import com.korIt.BoardStudy.repository.UserRoleRepository;
+import com.korIt.BoardStudy.sercurity.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,16 +21,18 @@ import java.util.Optional;
 public class AuthService {
 
     @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private JwtUtils jwtUtils;
 
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     private UserRepository userRepository;
 
-    @Transactional(rollbackFor = Exception.class)
-
     @Autowired
     private UserRoleRepository userRoleRepository;
+
+    @Transactional(rollbackFor = Exception.class)
 
     public ApiRespDto<?> signup(SignUpReqDto signUpReqDto) {
 //    아이디 중복확인
@@ -68,6 +72,24 @@ public class AuthService {
             return new ApiRespDto<>("failed", "회원가입 오류 발생 : " + e.getMessage(), null);
         }
 
+
+    }
+
+//    2:30 이후
+    public ApiRespDto<?> signin(SigninReqDto signinReqDto) {
+        Optional<User> optionalUser = userRepository.getUserByUsername(signinReqDto.getUsername());
+        if (optionalUser.isEmpty()) {
+            return new ApiRespDto<>("failed", "계정 정보를 확인해주세요.", null);
+        }
+
+        User user = optionalUser.get();
+
+        if (!bCryptPasswordEncoder.matches(signinReqDto.getPassword(), user.getPassword())) {
+            return new ApiRespDto<>("failed", "게정 정보를 확인하세요.", null);
+        }
+
+        String accessToken = jwtUtils.generateAccessToken(user.getUserId().toString());
+        return new ApiRespDto<>("success", "로그인 성공", accessToken);
 
     }
 
