@@ -1,14 +1,22 @@
 package com.korIt.BoardStudy.sercurity.filter;
 
+import com.korIt.BoardStudy.entity.User;
+import com.korIt.BoardStudy.repository.UserRepository;
 import com.korIt.BoardStudy.sercurity.jwt.JwtUtils;
+import com.korIt.BoardStudy.sercurity.model.PrincipalUser;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 
@@ -18,7 +26,7 @@ public class JwtAuthenticationFilter implements Filter {
     private JwtUtils jwtUtils;
 
     @Autowired
-
+    private UserRepository userRepository;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -38,10 +46,28 @@ public class JwtAuthenticationFilter implements Filter {
                 String id = claims.getId();
                 Integer userId = Integer.parseInt(id);
 
+                Optional<User> optionalUser = userRepository.getUserByUserId(userId);
+                optionalUser.ifPresentOrElse((user -> {
+                    PrincipalUser principalUser = PrincipalUser.builder()
+                            .userId(user.getUserId())
+                            .username(user.getUsername())
+                            .password(user.getPassword())
+                            .email(user.getEmail())
+                            .userRoles(user.getUserRoles())
+                            .build();
 
+                    Authentication authentication = new UsernamePasswordAuthenticationToken(principalUser, "", principalUser.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                }), () ->{
+                    throw new AuthenticationServiceException("인증 실패");
+                });
+            }   catch (RuntimeException e) {
+                e.printStackTrace();
             }
-
-
         }
+
+        filterChain.doFilter(servletRequest, servletResponse);
+
     }
 }
