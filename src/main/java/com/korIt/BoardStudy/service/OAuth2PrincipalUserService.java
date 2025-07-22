@@ -42,6 +42,13 @@ public class OAuth2PrincipalUserService extends DefaultOAuth2UserService {
                 break;
                 }
 
+        // 👇 모든 provider에 공통으로 적용되는 핵심 방어 코드
+        if (email == null) {
+            email = "";
+        }
+
+
+
         Map<String, Object> newAttributes = Map.of(
                 "id", id,
                 "provider", provider,

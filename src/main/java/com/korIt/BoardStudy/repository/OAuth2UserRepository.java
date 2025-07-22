@@ -19,4 +19,8 @@ public class OAuth2UserRepository {
 
     }
 
+    public int addOAuth2User(OAuth2User oAuth2User) {
+        return oauth2UserMapper.addOAuth2User(oAuth2User);
+    }
+
 }
