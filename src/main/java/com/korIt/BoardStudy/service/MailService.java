@@ -94,6 +94,8 @@ public class MailService {
         } catch (ExpiredJwtException e) {
             resultmap = Map.of("status","failed","message","인증시간이 만료된 요청입니다. \n 인증 메일을 다시 요청하십시오.");
         } catch (Exception e) {
+
+            e.printStackTrace();
             resultmap = Map.of("status", "failed", "message", "잘못된 요청입니다. \n 인증 메일을 다시 요청하십시오.");
         }
         return resultmap;
