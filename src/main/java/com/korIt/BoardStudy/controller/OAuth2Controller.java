@@ -1,6 +1,7 @@
 package com.korIt.BoardStudy.controller;
 
 import com.korIt.BoardStudy.dto.oauth2.OAuth2MergeReqDto;
+import com.korIt.BoardStudy.dto.oauth2.OAuth2SignupReqDto;
 import com.korIt.BoardStudy.service.OAuth2AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,11 @@ public class OAuth2Controller {
 
     }
 
+    @PostMapping("/signup")
+    public ResponseEntity<?> signup(@RequestBody OAuth2SignupReqDto oAuth2SignupReqDto) {
+        return ResponseEntity.ok(oAuth2AuthService.signup(oAuth2SignupReqDto));
+
+    }
 
 
 }

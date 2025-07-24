@@ -67,7 +67,7 @@ public class SecurityConfig {
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.authorizeHttpRequests(auth -> {
-            auth.requestMatchers("/auth/**", "/oauth2/**", "/login/oauth2/**").permitAll();
+            auth.requestMatchers("/auth/**", "/oauth2/**", "/login/oauth2/**", "/mail/verify").permitAll();
             auth.anyRequest().authenticated(); // 딴애들은 인증을 거쳐야함.
 
         });

@@ -32,13 +32,22 @@ public class JwtUtils {
     }
 // 이상까지 토큰생성.
 
+    public String generateVerifyToken(String id){
+        return Jwts.builder()
+                .subject("VerifyToken")
+                .id(id)
+                .expiration(new Date(new Date().getTime()+ (1000L * 60L * 3L)))
+                .signWith(Key)
+                .compact();
+    }
+
 //    그다음부턴 베어러 토큰이 맞는지 확인하는 로직
 
     public boolean isBearer(String token) {
         if (token == null) {
             return false;
         }
-        if (token.startsWith("Bearer ")) {
+        if (!token.startsWith("Bearer ")) {
             return false;
     }
     return true;
